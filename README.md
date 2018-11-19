@@ -15,6 +15,33 @@ RI Hourly Price: $0.0072
 RI Hourly Discount: 38.0%
 ```
 
+To get EC2 pricing for a c5.large RHEL instance running in us-east-1 with json output:
+```bash
+./pricing.py pricing -s AmazonEC2 -r us-east-1 -o RunInstances:0010 -i c5.large  --json-out
+{
+  "attributes": {
+    "service": "AmazonEC2",
+    "instanceType": "c5.large",
+    "operation": "RunInstances:0010",
+    "location": "US East (N. Virginia)",
+    "region": "us-east-1",
+    "OfferingClass": "standard",
+    "PurchaseOption": "No Upfront",
+    "LeaseContractLength": "1yr"
+  },
+  "OnDemand": {
+    "unit": "Hrs",
+    "description": "$0.145 per On Demand RHEL c5.large Instance Hour",
+    "hr_price": 0.145
+  },
+  "Reserved": {
+    "hr_price": 0.119,
+    "description": "Red Hat Enterprise Linux (Amazon VPC), c5.large reserved instance applied",
+    "discount": 18.0
+  }
+}
+```
+
 To see a list of EC2 operations translated to operating sustems:
 ```bash
 ./pricing.py operations AmazonEC2

@@ -6,29 +6,65 @@ logging.getLogger('botocore').setLevel(logging.WARNING)
 
 
 def get_services():
+    """ Return a list of AWS service names (i.e. ['AmazonEC2', 'AmazonRDS']
+    Called as a module
+
+    Returns:
+        list: alist of AWS Service names
+    """
     pricing = boto3.client('pricing', region_name=region_name)
     response = pricing.describe_services()
     services = []
     for service in response['Services']:
         services.append(service['ServiceCode'])
     return services
+
 @begin.subcommand()
 def services():
-    "gets a list of AWS services"
+    """Print a list of AWS service names
+    Called from CLI
+
+    Returns:
+        bool: True
+    """
     for service in get_services():
         print(service)
 
 def get_attrs(service):
+    """ Return a list of pricing attribute names for an AWS service
+    Called as a module
+
+    Args:
+        service (str): a string with a valid AWS Service Name
+    Returns:
+        list: a list of pricing attribute names for the service
+    """
     pricing = boto3.client('pricing', region_name=region_name)
     response = pricing.describe_services(ServiceCode=service)
     return response['Services'][0]['AttributeNames']
 @begin.subcommand()
 def attrs(service):
-    "gets a list of pricing attributes for an AWS service"
+    """Print a list of pricing attributes for an AWS service
+    Called from CLI
+
+    Args:
+        service (str): a string with valid AWS Service Name
+    Returns:
+        bool: True
+    """
     for attr in get_attrs(service):
         print(attr)
 
 def get_attr_vals(service, attr):
+    """ Return a list of pricing attribute values
+    Called as a module
+
+    Args:
+        service (str): a string with a valid AWS service name
+        att (str): a string with a valid AWS Pricing attribute name for service
+    Returns:
+        list: a list of attribute values for AWS Service / Pricing Attribute
+    """
     pricing = boto3.client('pricing', region_name=region_name)
     response = pricing.get_attribute_values(ServiceCode=service, AttributeName=attr)
     vals = []
@@ -37,11 +73,25 @@ def get_attr_vals(service, attr):
     return vals
 @begin.subcommand()
 def attr_vals(service, attr):
-    "gets list values for a service/attribute"
+    """Print a list values for a service/attribute
+    Called from CLI
+
+    Args:
+        service (str): a string with a valid AWS service name
+        att (str): a string with a valid AWS Pricing attribute name for service
+    Returns:
+        bool: True
+    """
     for val in get_attr_vals(service, attr):
         print(val)
 
 def get_regions():
+    """ Return a list of aws region names
+    Called as a module
+
+    Return:
+        list: a list of AWS region name strings
+    """
     ec2 = boto3.client('ec2', region_name=region_name)
     response = ec2.describe_regions()
     regions = []
@@ -50,14 +100,27 @@ def get_regions():
     return regions
 @begin.subcommand()
 def regions():
-    "gets a list of AWS regions"
+    """ Print a list of AWS regions
+    Called from CLI
+
+    Return:
+        bool: True
+    """
     for region in get_regions():
         print(region)
 
-
 @begin.subcommand()
 def loc_to_reg(location=None, region=None):
-    "converts aws region name to location and vice versa"
+    """ Converts aws region name to location and vice versa. Provide location or region
+    Called as a module
+
+    Args (provide either location or region):
+        location (str): AWS location name ex. 'US East (N. Virginia)'. Default = None
+        region (str): Aws region name ex. 'us-east-1'. Default = None
+    Return:
+        str: the corresponding region or location string name
+
+    """
     map = {
         "AWS GovCloud (US)" : "us-gov-west-1",
         "Asia Pacific (Mumbai)" : "ap-south-1",
@@ -91,6 +154,15 @@ def loc_to_reg(location=None, region=None):
         Exception(f"must provide a location or region from {map}")
 
 def get_operation_description(service, operation):
+    """ Return the description of an operation for a service
+    Called as a module
+
+    Args:
+        service (str): Valid AWS Service name
+        operation (str): Valid AWS Operation name
+    Return:
+        str : the description string for a Service / Operation
+    """
     pricing = boto3.client('pricing', region_name=region_name)
     location = loc_to_reg(region=region_name)
     instanceType = 't2.micro'
@@ -120,7 +192,16 @@ def get_operation_description(service, operation):
     return description
 @begin.subcommand()
 def operations(service, operation=None, json_out=False):
-    "gets the operating system name for an AWS operation"
+    """Prints the operating system name for AmazonEC2 or Amazon RDS operation(s)
+    Called from CLI
+
+    Arguments:
+        service (str): Valid AWS Service Name. ex. AmazonEC2
+        operation (str): AWS operation name. default = None (returns all operations). ex. RunInstances
+        json_out (bool): True/False. If true, printed output is json format.
+    Return:
+        bool: True
+    """
     if operation == None:
         operations = []
         ops = get_attr_vals(service, 'operation')
@@ -142,16 +223,19 @@ def operations(service, operation=None, json_out=False):
 
 def get_pricing(service=None, instanceType=None, operation=None, region=None, \
         LeaseContractLength='1yr', OfferingClass='standard', PurchaseOption='No Upfront'):
-    """
-    # Instance parms
-    param: service : 'AmazonEC2', 'AmazonRDS.
-    param: instanceType : 't2.micro', 'db.t2.micro'
-    param: operation : 'RunInstances', 'RunINstances:0002', 'CreateDBInstance:0014'
-    param: region : 'us-east-1'
-    param: LeaseContractLength : '1yr'*, '3yr'
-    param: OfferingClass : 'standard'*, 'convertible'
-    param: PurchaseOption : 'All Upfront', 'Partial Upfront', 'No Upfront'*
-    * = default
+    """ Returns a dict of AWS pricing values for a set of parms
+    Called as a module
+
+    Args:
+        service (str) : AWS service name. options 'AmazonEC2'|'AmazonRDS.
+        instanceType (str) : Instance Type. e.x. 't2.micro' | 'db.t2.micro'
+        operation (str) :  Operation. e.x. 'RunInstances' | 'RunINstances:0002' | 'CreateDBInstance:0014'
+        region (str) : AWS region name. e.x 'us-east-1'
+        LeaseContractLength (str) : RI contract length. default = '1yr'. options '1yr'|'3yr'
+        OfferingClass (str) : RI offering class. default = 'standard'. options: 'standard'|'convertible'
+        PurchaseOption (str) : RI purchase option. default = 'No Upfront'. options: 'All Upfront'|'Partial Upfront'|'No Upfront'
+    Return
+        dict: dictionary of pricing parameters
     """
 
     services = ['AmazonEC2', 'AmazonRDS']
@@ -254,18 +338,35 @@ def get_pricing(service=None, instanceType=None, operation=None, region=None, \
 
 @begin.subcommand()
 def pricing(service=None, instanceType=None, operation=None, region=None, \
-        LeaseContractLength='1yr', OfferingClass='standard', PurchaseOption='No Upfront'):
-    "gets AWS on demand and RI pricing for a resouce"
+        LeaseContractLength='1yr', OfferingClass='standard', PurchaseOption='No Upfront', json_out=False):
+    """ Prints AWS hourly usage pricing values for a resource type
+    Called from CLI
+
+    Args:
+        service (str) : AWS service name. options 'AmazonEC2'|'AmazonRDS.
+        instanceType (str) : Instance Type. e.x. 't2.micro' | 'db.t2.micro'
+        operation (str) :  Operation. e.x. 'RunInstances' | 'RunINstances:0002' | 'CreateDBInstance:0014'
+        region (str) : AWS region name. e.x 'us-east-1'
+        LeaseContractLength (str) : RI contract length. default = '1yr'. options '1yr'|'3yr'
+        OfferingClass (str) : RI offering class. default = 'standard'. options: 'standard'|'convertible'
+        PurchaseOption (str) : RI purchase option. default = 'No Upfront'. options: 'All Upfront'|'Partial Upfront'|'No Upfront'
+        json_out (bool): Print output as json
+    Return
+        bool: True
+    """
     result = get_pricing(service=service, instanceType=instanceType, operation=operation, region=region, \
         LeaseContractLength=LeaseContractLength, OfferingClass=OfferingClass, PurchaseOption=PurchaseOption)
-    print(f"Description: {result['OnDemand']['description']}")
-    print(f"OD Hourly Price: ${result['OnDemand']['hr_price']}")
-    if 'hr_price' in result['Reserved'].keys():
-        print(f"RI Hourly Price: ${result['Reserved']['hr_price']}")
-    if 'uf_price' in result['Reserved'].keys():
-        print(f"RI Upfront Price: ${result['Reserved']['uf_price']}")
-    if 'discount' in result['Reserved'].keys():
-        print(f"RI Hourly Discount: {result['Reserved']['discount']}%")
+    if json_out:
+        print(json.dumps(result, indent=2))
+    else:
+        print(f"Description: {result['OnDemand']['description']}")
+        print(f"OD Hourly Price: ${result['OnDemand']['hr_price']}")
+        if 'hr_price' in result['Reserved'].keys():
+            print(f"RI Hourly Price: ${result['Reserved']['hr_price']}")
+        if 'uf_price' in result['Reserved'].keys():
+            print(f"RI Upfront Price: ${result['Reserved']['uf_price']}")
+        if 'discount' in result['Reserved'].keys():
+            print(f"RI Hourly Discount: {result['Reserved']['discount']}%")
 
 @begin.start
 @begin.logging

@@ -295,6 +295,9 @@ def get_pricing(service=None, instanceType=None, operation=None, region=None, \
     result['attributes']['LeaseContractLength']= LeaseContractLength
     for price in response['PriceList']:
         jprice = json.loads(price)
+        logging.debug(json.dumps(jprice, indent=2))
+        for attribute in jprice['product']['attributes']:
+            result['attributes'][attribute] = jprice['product']['attributes'][attribute]
         usagetype = jprice['product']['attributes']['usagetype']
         if 'Multi-AZUsage' in usagetype or 'Mirror' in usagetype:
             # Multi-AZ is always double
@@ -360,6 +363,17 @@ def pricing(service=None, instanceType=None, operation=None, region=None, \
         print(json.dumps(result, indent=2))
     else:
         print(f"Description: {result['OnDemand']['description']}")
+        if 'operatingSystem' in result['attributes'].keys():
+            print(f"OperatingSystem: {result['attributes']['operatingSystem']}")
+        elif 'databaseEngine' in result['attributes'].keys():
+            print(f"DB Engine: {result['attributes']['databaseEngine']}")
+        print(f"CPU: ({result['attributes']['vcpu']}) {result['attributes']['clockSpeed']} {result['attributes']['physicalProcessor']}")
+        print(f"Memory: {result['attributes']['memory']}")
+        print(f"Network Performance: {result['attributes']['networkPerformance']}")
+        if 'dedicatedEbsThroughput' in result['attributes'].keys():
+            print(f"EBS Performance: {result['attributes']['dedicatedEbsThroughput']}")
+        elif 'storage' in result['attributes'].keys():
+            print(f"Storage: {result['attributes']['storage']}")
         print(f"OD Hourly Price: ${result['OnDemand']['hr_price']}")
         if 'hr_price' in result['Reserved'].keys():
             print(f"RI Hourly Price: ${result['Reserved']['hr_price']}")

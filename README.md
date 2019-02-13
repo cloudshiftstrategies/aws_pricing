@@ -8,7 +8,7 @@ This is a tool designed to make it easier to look up AWS pricing information. Th
 
 To get EC2 Pricing for a t2.micro Linux instance running in us-east-1:
 ```bash
-./pricing.py pricing -s AmazonEC2 -r us-east-1 -o RunInstances -i t2.micro
+./aws_pricing.py pricing -s AmazonEC2 -r us-east-1 -o RunInstances -i t2.micro
 Description: $0.0116 per On Demand Linux t2.micro Instance Hour
 OD Hourly Price: $0.0116
 RI Hourly Price: $0.0072
@@ -17,7 +17,7 @@ RI Hourly Discount: 38.0%
 
 To get EC2 pricing for a c5.large RHEL instance running in us-east-1 with json output:
 ```bash
-./pricing.py pricing -s AmazonEC2 -r us-east-1 -o RunInstances:0010 -i c5.large  --json-out
+./aws_pricing.py pricing -s AmazonEC2 -r us-east-1 -o RunInstances:0010 -i c5.large  --json-out
 {
   "attributes": {
     "service": "AmazonEC2",
@@ -44,7 +44,7 @@ To get EC2 pricing for a c5.large RHEL instance running in us-east-1 with json o
 
 To see a list of EC2 operations translated to operating sustems:
 ```bash
-./pricing.py operations AmazonEC2
+./aws_pricing.py operations AmazonEC2
 AmazonEC2 - RunInstances:0002 : Windows
 AmazonEC2 - RunInstances:0004 : Linux with SQL Std
 AmazonEC2 - RunInstances:0006 : Windows with SQL Std
@@ -61,12 +61,12 @@ AmazonEC2 - RunInstances : Linux
 To check the price of a 3yr, all upfront db.r4.large RI for Aurora us-west-2
 ```bash
 # First determine the operation name for Aurora
-./pricing.py operations AmazonRDS | grep Aurora
+./aws_pricing.py operations AmazonRDS | grep Aurora
 AmazonRDS - CreateDBInstance:0016 : Amazon Aurora
 AmazonRDS - CreateDBInstance:0021 : Amazon Aurora PostgreSQL
 
 # Then run the pricing check for operation: CreateDBInstance:0016
-./pricing.py pricing -s AmazonRDS -o CreateDBInstance:0016 -r us-west-2 -i db.r4.large -L 3yr -P "All Upfront"
+./aws_pricing.py pricing -s AmazonRDS -o CreateDBInstance:0016 -r us-west-2 -i db.r4.large -L 3yr -P "All Upfront"
 Description: $0.29 per RDS db.r4.large instance hour (or partial hour) running Amazon Aurora
 OD Hourly Price: $0.29
 RI Hourly Price: $0.0
@@ -118,9 +118,9 @@ or
 ## CLI Usage
 There is extensive help on the commands and subcommands with -h
 ```bash
-./pricing.py -h
+./aws_pricing.py -h
 
-usage: pricing.py [-h] [-v | -q]
+usage: aws_pricing.py [-h] [-v | -q]
                   [--loglvl {DEBUG,INFO,WARNING,ERROR,CRITICAL}]
                   [--logfile LOGFILE] [--logfmt LOGFMT]
                   {attr_vals,attrs,loc_to_reg,operations,pricing,regions,services}

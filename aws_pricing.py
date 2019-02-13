@@ -367,7 +367,10 @@ def pricing(service=None, instanceType=None, operation=None, region=None, \
             print(f"OperatingSystem: {result['attributes']['operatingSystem']}")
         elif 'databaseEngine' in result['attributes'].keys():
             print(f"DB Engine: {result['attributes']['databaseEngine']}")
-        print(f"CPU: ({result['attributes']['vcpu']}) {result['attributes']['clockSpeed']} {result['attributes']['physicalProcessor']}")
+        print(f"CPU: ({result['attributes']['vcpu']})", end='')
+        if 'clockSpeed' in result['attributes'].keys():
+            print(f"{result['attributes']['clockSpeed']}", end="")
+        print(f" {result['attributes']['physicalProcessor']}")
         print(f"Memory: {result['attributes']['memory']}")
         print(f"Network Performance: {result['attributes']['networkPerformance']}")
         if 'dedicatedEbsThroughput' in result['attributes'].keys():

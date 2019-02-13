@@ -383,7 +383,7 @@ def pricing(service=None, instanceType=None, operation=None, region=None, \
         if 'uf_price' in result['Reserved'].keys():
             print(f"RI Upfront Price: ${result['Reserved']['uf_price']}")
         if 'discount' in result['Reserved'].keys():
-            print(f"RI Hourly Discount: {result['Reserved']['discount']}%")
+            print(f"RI Hourly Discount: {round(result['Reserved']['discount'],2)}%")
 
 @begin.start
 @begin.logging

@@ -7,11 +7,18 @@ This is a tool designed to make it easier to look up AWS pricing information. Th
 ## Command Line Examples
 
 To get EC2 Pricing for a t2.micro Linux instance running in us-east-1:
+
 ```bash
 ./aws_pricing.py pricing -s AmazonEC2 -r us-east-1 -o RunInstances -i t2.micro
 Description: $0.0116 per On Demand Linux t2.micro Instance Hour
+OperatingSystem: Linux
+CPU: (1)Up to 3.3 GHz Intel Xeon Family
+Memory: 1 GiB
+Network Performance: Low to Moderate
+Storage: EBS only
 OD Hourly Price: $0.0116
 RI Hourly Price: $0.0072
+RI Upfront Price: $0.00
 RI Hourly Discount: 38.0%
 ```
 
@@ -27,7 +34,31 @@ To get EC2 pricing for a c5.large RHEL instance running in us-east-1 with json o
     "region": "us-east-1",
     "OfferingClass": "standard",
     "PurchaseOption": "No Upfront",
-    "LeaseContractLength": "1yr"
+    "LeaseContractLength": "1yr",
+    "enhancedNetworkingSupported": "Yes",
+    "memory": "4 GiB",
+    "dedicatedEbsThroughput": "Upto 2250 Mbps",
+    "vcpu": "2",
+    "capacitystatus": "Used",
+    "locationType": "AWS Region",
+    "storage": "EBS only",
+    "instanceFamily": "Compute optimized",
+    "operatingSystem": "RHEL",
+    "physicalProcessor": "Intel Xeon Platinum 8124M",
+    "clockSpeed": "3.0 Ghz",
+    "ecu": "9",
+    "networkPerformance": "Up to 10 Gigabit",
+    "servicename": "Amazon Elastic Compute Cloud",
+    "instancesku": "BWKDS9539ZWVQSVQ",
+    "tenancy": "Host",
+    "usagetype": "HostBoxUsage:c5.large",
+    "normalizationSizeFactor": "4",
+    "processorFeatures": "Intel AVX, Intel AVX2, Intel AVX512, Intel Turbo",
+    "servicecode": "AmazonEC2",
+    "licenseModel": "No License required",
+    "currentGeneration": "Yes",
+    "preInstalledSw": "NA",
+    "processorArchitecture": "64-bit"
   },
   "OnDemand": {
     "unit": "Hrs",
@@ -68,10 +99,16 @@ AmazonRDS - CreateDBInstance:0021 : Amazon Aurora PostgreSQL
 # Then run the pricing check for operation: CreateDBInstance:0016
 ./aws_pricing.py pricing -s AmazonRDS -o CreateDBInstance:0016 -r us-west-2 -i db.r4.large -L 3yr -P "All Upfront"
 Description: $0.29 per RDS db.r4.large instance hour (or partial hour) running Amazon Aurora
+DB Engine: Aurora MySQL
+CPU: (2)2.3 GHz Intel Xeon E5-2686 v4 (Broadwell)
+Memory: 15.25 GiB
+Network Performance: Up to 10 Gigabit
+EBS Performance: 400 Mbps
 OD Hourly Price: $0.29
 RI Hourly Price: $0.0
 RI Upfront Price: $2657.0
 RI Hourly Discount: 100.0%
+RI Payback Period (mos): 12.2
 ```
 
 ## Module examples

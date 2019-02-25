@@ -295,6 +295,7 @@ def get_pricing(service=None, instanceType=None, operation=None, region=None, \
     result['attributes']['LeaseContractLength']= LeaseContractLength
     for price in response['PriceList']:
         jprice = json.loads(price)
+        #print(json.dumps(jprice, indent=2))
         logging.debug(json.dumps(jprice, indent=2))
         for attribute in jprice['product']['attributes']:
             result['attributes'][attribute] = jprice['product']['attributes'][attribute]
@@ -337,6 +338,9 @@ def get_pricing(service=None, instanceType=None, operation=None, region=None, \
         result['Reserved']['discount'] = round(
             1 - (result['Reserved']['hr_price'] / result['OnDemand']['hr_price'])
             ,2) *100
+    if 'uf_price' in result['Reserved'].keys():
+        # Calculate RI payback period
+        result['Reserved']['payback_mos'] = round(result['Reserved']['uf_price'] / ((result['OnDemand']['hr_price']-result['Reserved']['hr_price'])*750),1)
     return result
 
 @begin.subcommand()
@@ -362,6 +366,7 @@ def pricing(service=None, instanceType=None, operation=None, region=None, \
     if json_out:
         print(json.dumps(result, indent=2))
     else:
+        #print(json.dumps(result, indent=2))
         print(f"Description: {result['OnDemand']['description']}")
         if 'operatingSystem' in result['attributes'].keys():
             print(f"OperatingSystem: {result['attributes']['operatingSystem']}")
@@ -382,8 +387,12 @@ def pricing(service=None, instanceType=None, operation=None, region=None, \
             print(f"RI Hourly Price: ${result['Reserved']['hr_price']}")
         if 'uf_price' in result['Reserved'].keys():
             print(f"RI Upfront Price: ${result['Reserved']['uf_price']}")
+        else:
+            print(f"RI Upfront Price: $0.00")
         if 'discount' in result['Reserved'].keys():
             print(f"RI Hourly Discount: {round(result['Reserved']['discount'],2)}%")
+        if 'payback_mos' in result['Reserved'].keys():
+            print(f"RI Payback Period (mos): {result['Reserved']['payback_mos']}")
 
 @begin.start
 @begin.logging

@@ -248,7 +248,7 @@ def get_pricing(service=None, instanceType=None, operation=None, region=None, \
 
     operations = get_attr_vals(service, 'operation')
     if operation not in operations:
-        raise Exception(f"operation: '{operation}' invalid. Must be one of {operation}")
+        raise Exception(f"operation: '{operation}' invalid. Must be one of {operations}")
 
     regions = get_regions()
     if region not in regions:
@@ -378,6 +378,7 @@ def pricing(service=None, instanceType=None, operation=None, region=None, \
         print(f" {result['attributes']['physicalProcessor']}")
         print(f"Memory: {result['attributes']['memory']}")
         print(f"Network Performance: {result['attributes']['networkPerformance']}")
+        print(f"RI LeaseContractLength: {LeaseContractLength}, OfferingClass: {OfferingClass}, PurchaseOption: {PurchaseOption}")
         if 'dedicatedEbsThroughput' in result['attributes'].keys():
             print(f"EBS Performance: {result['attributes']['dedicatedEbsThroughput']}")
         elif 'storage' in result['attributes'].keys():
